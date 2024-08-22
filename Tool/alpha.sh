@@ -6,12 +6,21 @@ api="https://api.github.com/repos/wzfdgh/ClashRepo/releases/latest"
 version=$(curl -sS "$api" | awk -F'-| ' '/body/ {print $5}')
 # 获取脚本路径及最新版本
 
-checkbak() {
+tobackup() {
+if [ -f $dir/clash ]; then
+  mv $dir/clash /tmp/clash.bak
+  echo "已备份旧核心喵"
+else
+  echo "当前路径下未找到旧核心喵"
+fi
+}
+
+torestore() {
 if [ -f /tmp/clash.bak ]; then
   mv /tmp/clash.bak $dir/clash
-  echo "把原来的核心还给你了喵"
+  echo "核心备份已还原喵"
 else
-  echo "没有找到备份核心喵"
+  echo "未找到备份核心喵"
 fi
 }
 
@@ -69,7 +78,7 @@ if [ "$arch" = "amd64" ]; then
 fi
 # 获取架构-mips未完全包括
 #arch=
-# 如需指定架构,请取消注释,填上你需要的架构,并把下面的试运行删去
+# 如需指定架构请取消注释,填上你需要的架构,并把下面的试运行删去
 
 gh="https://raw.githubusercontent.com/wzfdgh/ClashRepo/release/clash.meta-$os-$arch"
 gp="https://mirror.ghproxy.com/raw.githubusercontent.com/wzfdgh/ClashRepo/release/clash.meta-$os-$arch"
@@ -95,31 +104,29 @@ fi
 filesize=$(stat -c %s /tmp/clash)
 
 if [ "$size" = "$filesize" ]; then
-  if [ -f $dir/clash ]; then
-    mv $dir/clash /tmp/clash.bak
-  fi
   chmod 755 /tmp/clash
+#  tobackup
 #  mv /tmp/clash $dir/clash
 #  echo -n "$version" > $dir/.clash-meta-version
 #  echo 更新完成了喵
 #  exit 0
-# 如果指定架构,把上面四句取消注释
-# 并把下面if
-  t=$(/tmp/clash -v | awk -F'-| ' '/alpha/ {print $4}')
-  if [ "$t" = "$version" ]; then
+# 如果指定架构,把上面语句取消注释,并将这里
+  newver=$(/tmp/clash -v | awk -F'-| ' '/alpha/ {print $4}')
+  if [ "$newver" = "$version" ]; then
+    tobackup
     mv /tmp/clash $dir/clash
     echo -n "$version" > $dir/.clash-meta-version
     echo "更新完成了喵"
     exit 0
   else
-    echo "更新失败了喵,核心版本不匹配或无法运行"
-    checkbak
+    echo "更新失败了喵,核心版本不匹配或无法运行 newver=$newver"
+    torestore
     exit 1
   fi
-# 到这个fi删掉
+# 到这里的部分,删掉
 else
   echo "更新失败了喵,核心文件大小校验失败 filesize=$filesize"
-  checkbak
+  torestore
   exit 1
 fi
 }
