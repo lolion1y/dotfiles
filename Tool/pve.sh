@@ -1,15 +1,15 @@
 #!/bin/bash
 
-js='/usr/share/pve-manager/js/pvemanagerlib.js'
-pm='/usr/share/perl5/PVE/API2/Nodes.pm'
-pjs='/usr/share/javascript/proxmox-widget-toolkit/proxmoxlib.js'
-apm='/usr/share/perl5/PVE/APLInfo.pm'
-rc='/etc/rc.local'
+js="/usr/share/pve-manager/js/pvemanagerlib.js"
+pm="/usr/share/perl5/PVE/API2/Nodes.pm"
+pjs="/usr/share/javascript/proxmox-widget-toolkit/proxmoxlib.js"
+apm="/usr/share/perl5/PVE/APLInfo.pm"
+rc="/etc/rc.local"
 
-#ivanhao/pvetools
+# ivanhao/pvetools
 web() {
 echo "去除订阅提示"
-if [ `grep "data.status.toLowerCase() != 'active'" $pjs |wc -l` -gt 0 ];then
+if [ $(grep "data.status.toLowerCase() != 'active'" $pjs | wc -l) -gt 0 ];then
   sed -i "s/data.status.toLowerCase() != 'active'/false/g" $pjs
 else
   echo "无需去除"
@@ -18,7 +18,7 @@ fi
 echo "Web管理页增加数据"
 as
 apt update && apt install linux-cpupower lm-sensors -y
-if [ `grep "cpu_tdp" $pm |wc -l` -eq 0 ];then
+if [ $(grep "cpu_tdp" $pm | wc -l) -eq 0 ];then
   cat << EOF > /tmp/js
 	{
 	    itemId: 'cputdp',
@@ -52,22 +52,22 @@ EOF
 	\$res->{cpu_tdp} = \`turbostat --quiet -s PkgWatt -i 0.01 -n 1\`;
 EOF
 
-  l=`sed -n "/title: gettext('CPU(s)')/,/\}/=" $js |sed -n '$p'`
+  l=$(sed -n "/title: gettext('CPU(s)')/,/\}/=" $js | sed -n '$p')
   sed -i ''$l' r /tmp/js' $js
 
-  l=`sed -n '/pveversion/,/version_text/=' $pm |sed -n '$p'`
+  l=$(sed -n '/pveversion/,/version_text/=' $pm | sed -n '$p')
   sed -i ''$l' r /tmp/pm' $pm
 
-  l=`sed -n '/widget.pveNodeStatus/,/height/=' $js |sed -n '$p'`
-  h=`grep -3 'widget.pveNodeStatus' $js |awk -F': ' '/height/ {print $2}' |sed 's/.$//g'`
+  l=$(sed -n '/widget.pveNodeStatus/,/height/=' $js | sed -n '$p')
+  h=$(grep -3 'widget.pveNodeStatus' $js | awk -F': ' '/height/ {print $2}' | sed 's/.$//g')
   let t=$h+50
   sed -i ''$l'c \ \ \ \ height:\ '$t',' $js
 
   chmod +s /usr/sbin/turbostat
   echo "添加开机启动项"
   rclocal
-  if [ `grep "chmod +s /usr/sbin/turbostat" $rc |wc -l` -eq 0 ];then
-    l=`sed -n "/^exit 0/=" $rc`
+  if [ $(grep "chmod +s /usr/sbin/turbostat" $rc | wc -l) -eq 0 ];then
+    l=$(sed -n "/^exit 0/=" $rc)
     sed -i ''$l'i chmod +s /usr/sbin/turbostat' $rc
   else
     echo "无需添加"
@@ -80,7 +80,7 @@ fi
 
 as() {
 echo "sources.list"
-if [ `grep "https://mirrors.bfsu.edu.cn/debian/" /etc/apt/sources.list |wc -l` -eq 0 ];then
+if [ $(grep "https://mirrors.bfsu.edu.cn/debian/" /etc/apt/sources.list | wc -l) -eq 0 ];then
   cat << EOF > /etc/apt/sources.list
 deb https://mirrors.bfsu.edu.cn/debian/ bookworm main contrib non-free non-free-firmware
 # deb-src https://mirrors.bfsu.edu.cn/debian/ bookworm main contrib non-free non-free-firmware
@@ -97,7 +97,7 @@ else
 fi
 
 echo "ceph.list"
-if [ `grep "https://mirrors.ustc.edu.cn/proxmox/debian/ceph-quincy" /etc/apt/sources.list.d/ceph.list |wc -l` -eq 0 ];then
+if [ $(grep "https://mirrors.ustc.edu.cn/proxmox/debian/ceph-quincy" /etc/apt/sources.list.d/ceph.list | wc -l) -eq 0 ];then
   cat << EOF > /etc/apt/sources.list.d/ceph.list
 deb https://mirrors.ustc.edu.cn/proxmox/debian/ceph-quincy bookworm no-subscription
 EOF
@@ -107,7 +107,7 @@ else
 fi
 
 echo "pve-no-subscription.list"
-if [ `grep "https://mirrors.bfsu.edu.cn/proxmox/debian/pve" /etc/apt/sources.list.d/pve-no-subscription.list |wc -l` -eq 0 ];then
+if [ $(grep "https://mirrors.bfsu.edu.cn/proxmox/debian/pve" /etc/apt/sources.list.d/pve-no-subscription.list | wc -l) -eq 0 ];then
   cat << EOF > /etc/apt/sources.list.d/pve-no-subscription.list
 deb https://mirrors.bfsu.edu.cn/proxmox/debian/pve bookworm pve-no-subscription
 EOF
@@ -135,7 +135,7 @@ apt install nut nut-cgi -y
 
 ct() {
 echo "更改 CT 镜像源"
-if [ `grep "https://mirrors.bfsu.edu.cn/proxmox" $apm |wc -l` -eq 0 ];then
+if [ $(grep "https://mirrors.bfsu.edu.cn/proxmox" $apm | wc -l) -eq 0 ];then
   sed -i 's|http://download.proxmox.com|https://mirrors.bfsu.edu.cn/proxmox|g' $apm
   systemctl restart pvedaemon
 else
@@ -145,8 +145,8 @@ fi
 
 grub() {
 echo "更改grub"
-if [ `grep 'GRUB_CMDLINE_LINUX_DEFAULT="quiet intel_iommu=on iommu=pt i915.enable_guc=3 i915.max_vfs=7 intel_pstate=passive cpufreq.default_governor=conservative"' /etc/default/grub |wc -l` -eq 0 ];then
-  l=`sed -n "/GRUB_CMDLINE_LINUX_DEFAULT/=" /etc/default/grub`
+if [ $(grep 'GRUB_CMDLINE_LINUX_DEFAULT="quiet intel_iommu=on iommu=pt i915.enable_guc=3 i915.max_vfs=7 intel_pstate=passive cpufreq.default_governor=conservative"' /etc/default/grub | wc -l) -eq 0 ];then
+  l=$(sed -n "/GRUB_CMDLINE_LINUX_DEFAULT/=" /etc/default/grub)
   sed -i ''$l'c GRUB_CMDLINE_LINUX_DEFAULT="quiet intel_iommu=on iommu=pt i915.enable_guc=3 i915.max_vfs=7 intel_pstate=passive cpufreq.default_governor=conservative"' /etc/default/grub
   # https://www.intel.cn/content/www/cn/zh/support/articles/000093216/graphics/processor-graphics.html
   # i915.enable_gvt=1
@@ -310,18 +310,18 @@ eth() {
 echo "配置网卡 offload"
 apt update && apt install ethtool -y
 rclocal
-if [ `grep "ethtool -K" $rc |wc -l` -eq 0 ];then
-  l=`sed -n "/^exit 0/=" $rc`
+if [ $(grep "ethtool -K" $rc | wc -l) -eq 0 ];then
+  l=$(sed -n "/^exit 0/=" $rc)
   sed -i ''$l'd' $rc
   cat << EOF >> /etc/rc.local
-for dev in \$(ls /sys/class/net |grep '^(eno\|ens\|enp\|eth)'); do
+for dev in \$(ls /sys/class/net | grep '^(eno\|ens\|enp\|eth)'); do
 echo "\$dev"
 ethtool -K \$dev tso off
 done
 
 exit 0
 EOF
-  for dev in $(ls /sys/class/net |grep '^(eno\|ens\|enp\|eth)'); do
+  for dev in $(ls /sys/class/net | grep '^(eno\|ens\|enp\|eth)'); do
   echo "$dev"
   ethtool -K $dev tso off
   done
