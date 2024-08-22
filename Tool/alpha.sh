@@ -1,44 +1,43 @@
 #!/bin/sh
-#LOVE FROM ATRI
+# LOVE FROM ATRI
 
-dir=$(cd `dirname $0`; pwd)
-api=https://api.github.com/repos/wzfdgh/ClashRepo/releases/latest
-version=$(curl -sS $api | awk '/body/ {split($2,v,"-");print v[2]}')
-#获取脚本路径及最新版本
+dir=$(cd $(dirname $0); pwd)
+api="https://api.github.com/repos/wzfdgh/ClashRepo/releases/latest"
+version=$(curl -sS "$api" | awk -F'-| ' '/body/ {print $5}')
+# 获取脚本路径及最新版本
 
 checkbak() {
-if [ -e /tmp/clash.bak ]; then
+if [ -f /tmp/clash.bak ]; then
   mv /tmp/clash.bak $dir/clash
-  echo 把原来的核心还给你了喵
+  echo "把原来的核心还给你了喵"
 else
-  echo 没有找到备份核心喵
+  echo "没有找到备份核心喵"
 fi
 }
 
 update() {
 case $(uname) in
-  Darwin) os=darwin ;;
+  Darwin) os="darwin" ;;
   *)
     case $(uname -o) in
-      Android) os=android ;;
-      *) os=linux ;;
+      Android) os="android" ;;
+      *) os="linux" ;;
     esac
     ;;
 esac
-#获取操作系统
+# 获取操作系统
 
 arch=$(uname -m)
-case $arch in
-  mipsel_24kc) arch=mipsle-hardfloat ;;
-  i386|x86) arch=386 ;;
-  amd64|x86_64) arch=amd64 ;;
-  arm64|aarch64|armv8) arch=arm64 ;;
-  armv7|armv7l) arch=armv7 ;;
+case "$arch" in
+  mipsel_24kc) arch="mipsle-hardfloat" ;;
+  i386|x86) arch="386" ;;
+  amd64|x86_64) arch="amd64" ;;
+  arm64|aarch64|armv8) arch="arm64" ;;
+  armv7|armv7l) arch="armv7" ;;
 esac
 
-if [ $arch = amd64 ]; then
-  flags=$(awk '/^flags/ {print $0; exit}' /proc/cpuinfo)
-  flags=" ${flags#*:} "
+if [ "$arch" = "amd64" ]; then
+  flags=$(awk '/^flags/ {gsub(/flags.*:|^/," ");print  $0 ; exit}' /proc/cpuinfo)
   has_flags() {
     for flag; do
       case "$flags" in
@@ -64,70 +63,69 @@ if [ $arch = amd64 ]; then
   }
   determine_level
   case $level in
-    [34]) arch=amd64 ;;
-    *) arch=amd64-compatible ;;
+    [34]) arch="amd64" ;;
+    *) arch="amd64-compatible" ;;
   esac
 fi
-#获取架构-mips未完全包括
+# 获取架构-mips未完全包括
 #arch=
-#如需指定架构,请取消注释,填上你需要的架构,并把下面的试运行删去
+# 如需指定架构,请取消注释,填上你需要的架构,并把下面的试运行删去
 
-gh=https://raw.githubusercontent.com/wzfdgh/ClashRepo/release/clash.meta-$os-$arch
-gp=https://mirror.ghproxy.com/raw.githubusercontent.com/wzfdgh/ClashRepo/release/clash.meta-$os-$arch
-js=https://cdn.jsdelivr.net/gh/wzfdgh/ClashRepo@release/clash.meta-$os-$arch
-size=$(curl -s $api | grep clash.meta-$os-$arch\" -B 4 | awk -F ': ' '/size/ {split($2, s, ","); print s[1]}')
+gh="https://raw.githubusercontent.com/wzfdgh/ClashRepo/release/clash.meta-$os-$arch"
+gp="https://mirror.ghproxy.com/raw.githubusercontent.com/wzfdgh/ClashRepo/release/clash.meta-$os-$arch"
+js="https://cdn.jsdelivr.net/gh/wzfdgh/ClashRepo@release/clash.meta-$os-$arch"
+size=$(curl -sS $api | grep clash.meta-$os-$arch\" -B 4 | awk -F': |,' '/size/ {print $2}')
+loc=$(curl -sS https://1.0.0.1/cdn-cgi/trace | awk -F'=' '/loc/ {print $2}')
 
-if [ "$(curl -s https://1.0.0.1/cdn-cgi/trace | awk -F '=' '/loc/ {print $2}')" = "CN" ]; then
-  url=$gp
+if [ "$loc" = "CN" ]; then
+  url="$gp"
 else
-  url=$gh
+  url="$gh"
 fi
-#url=$js
-echo "$os $arch $version $size"
-#显示系统与架构,核心版本,仓库文件大小
+#url="$js"
+echo "OS=$os Arch=$arch Version=$version Szie=$size"
+# 显示系统与架构,核心版本,仓库文件大小
 
-wget --show-progress -nv -O /tmp/clash $url
-
-filesize=`stat /tmp/clash | awk -F ' ' '/Size/ {print $2}'`
-if [ -z $filesize ]; then
-  filesize=`stat /tmp/clash | awk -F '：' '/大小/ {print $2}'`
-elif [ -z $filesize ]; then
-  filesize=`stat /tmp/clash | awk -F '"' '{print $NF}'`
+if command -v wget &> /dev/null; then
+  wget -nv -O /tmp/clash "$url"
+else
+  curl -sSLo /tmp/clash --retry 10 "$url"
 fi
 
-if [ $size = $filesize ]; then
+filesize=$(stat -c %s /tmp/clash)
+
+if [ "$size" = "$filesize" ]; then
   if [ -f $dir/clash ]; then
     mv $dir/clash /tmp/clash.bak
   fi
   chmod 755 /tmp/clash
-  mv /tmp/clash $dir/clash
-  t=`$dir/clash -v | awk -F ' ' '/alpha/ {split($3, t, "-"); print t[2]}'`
-#  echo -n $version > $dir/.clash-meta-version
+#  mv /tmp/clash $dir/clash
+#  echo -n "$version" > $dir/.clash-meta-version
 #  echo 更新完成了喵
 #  exit 0
-#如果指定架构,把上面三句取消注释
-#并把下面if
-  if [ $t = $version ]; then
-    echo -n $version > $dir/.clash-meta-version
-    echo 更新完成了喵
+# 如果指定架构,把上面四句取消注释
+# 并把下面if
+  t=$(/tmp/clash -v | awk -F'-| ' '/alpha/ {print $4}')
+  if [ "$t" = "$version" ]; then
+    mv /tmp/clash $dir/clash
+    echo -n "$version" > $dir/.clash-meta-version
+    echo "更新完成了喵"
     exit 0
   else
-    rm $dir/clash
-    echo 更新失败了喵,核心试运行没过
+    echo "更新失败了喵,核心版本不匹配或无法运行"
     checkbak
     exit 1
   fi
-#到这个fi删掉
+# 到这个fi删掉
 else
-  rm /tmp/clash
-  echo 更新失败了喵,核心文件大小校验失败
+  echo "更新失败了喵,核心文件大小校验失败 filesize=$filesize"
   checkbak
   exit 1
 fi
 }
 
-if [ -f $dir/.clash-meta-version ] && [ $(cat $dir/.clash-meta-version) = $version ]; then
-  echo 没有更新喵,还是等等吧
+if [ -f $dir/.clash-meta-version ] && [ $(cat $dir/.clash-meta-version) = "$version" ]; then
+  echo "没有更新喵,还是等等吧"
   exit 0
 else
   update

@@ -9,8 +9,8 @@ rc='/etc/rc.local'
 #ivanhao/pvetools
 web() {
 echo "去除订阅提示"
-if [ `grep "data.status.toLowerCase() !== 'active'" $pjs |wc -l` -gt 0 ];then
-  sed -i "s/data.status.toLowerCase() !== 'active'/false/g" $pjs
+if [ `grep "data.status.toLowerCase() != 'active'" $pjs |wc -l` -gt 0 ];then
+  sed -i "s/data.status.toLowerCase() != 'active'/false/g" $pjs
 else
   echo "无需去除"
 fi
