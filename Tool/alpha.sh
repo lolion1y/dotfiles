@@ -39,7 +39,7 @@ esac
 
 case $(uname -m) in
   "mipsel_24kc") arch="mipsle-hardfloat" ;;
-  "mips"|"mips64") if [ $(printf 'I' | hexdump -o | awk '{ print substr($2, 6, 1); exit; }') -eq 1 ]; then arch="$(uname -m)le"; fi; arch=""$(arch)"_softfloat" ;;
+#  "mips"|"mips64") if [ $(printf 'I' | hexdump -o | awk '{ print substr($2, 6, 1); exit; }') -eq 1 ]; then arch="$(uname -m)le"; fi; arch=""$(arch)"_softfloat" ;;
   "i386"|"i486"|"i686"|"i786"|"x86") arch="386" ;;
   "amd64"|"x86_64"|"x64"|"x86-64") arch="amd64" ;;
   "armv5"|"armv5l") arch="armv5" ;;
@@ -83,7 +83,7 @@ fi
 gh="https://raw.githubusercontent.com/wzfdgh/ClashRepo/release/clash.meta-$os-$arch"
 gp="https://mirror.ghproxy.com/raw.githubusercontent.com/wzfdgh/ClashRepo/release/clash.meta-$os-$arch"
 js="https://cdn.jsdelivr.net/gh/wzfdgh/ClashRepo@release/clash.meta-$os-$arch"
-size=$(curl -sS $api | grep clash.meta-$os-$arch\" -B 4 | awk -F': |,' '/size/ {print $2}')
+size=$(curl -sS $api | grep -4 "/clash.meta-$os-$arch\"" | awk -F': |,' '/size/ {print $2}')
 loc=$(curl -sS https://1.0.0.1/cdn-cgi/trace | awk -F'=' '/loc/ {print $2}')
 
 if [ "$loc" = "CN" ]; then
