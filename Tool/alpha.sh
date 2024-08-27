@@ -27,13 +27,12 @@ fi
 update() {
 case $(uname -s) in
   Darwin*) os="darwin" ;;
-  Linux*) os="linux" ;;
   MINGW*|MSYS*|CYGWIN*) os="windows" ;;
-  *)
-    case $(uname -o) in
-      Android*) os="android" ;;
-    esac
-    ;;
+  *) case $(uname -o) in
+       Linux*) os="linux" ;;
+       Android*) os="android" ;;
+       *) echo "不支持的操作系统 s=$(uname -s) o=$(uname -o)"; exit 1 ;;
+    esac ;;
 esac
 # 获取操作系统
 
@@ -43,6 +42,7 @@ case $(uname -m) in
   amd64|x86_64) arch="amd64" ;;
   arm64|aarch64|armv8) arch="arm64" ;;
   armv7|armv7l) arch="armv7" ;;
+  *) echo "不支持的架构 m=$(uname -m)"; exit 1 ;;
 esac
 
 if [ "$arch" = "amd64" ]; then
@@ -50,8 +50,8 @@ if [ "$arch" = "amd64" ]; then
   has_flags() {
     for flag; do
       case "$flags" in
-        *" $flag "*) :;;
-        *) return 1;;
+        *" $flag "*) : ;;
+        *) return 1 ;;
       esac
     done
   }
