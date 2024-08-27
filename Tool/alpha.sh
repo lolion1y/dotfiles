@@ -91,7 +91,7 @@ fi
 echo "OS=$os Arch=$arch Version=$version Szie=$size"
 # 显示系统与架构,核心版本,仓库文件大小
 
-if command -v wget &> /dev/null; then
+if command -v wget > /dev/null 2>&1; then
   wget -nv -O /tmp/clash "$url"
 else
   curl -sSLo /tmp/clash --retry 10 "$url"
