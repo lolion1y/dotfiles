@@ -25,19 +25,19 @@ fi
 }
 
 update() {
-case $(uname) in
-  Darwin) os="darwin" ;;
+case $(uname -s) in
+  Darwin*) os="darwin" ;;
+  Linux*) os="linux" ;;
+  MINGW*|MSYS*|CYGWIN*) os="windows" ;;
   *)
     case $(uname -o) in
-      Android) os="android" ;;
-      *) os="linux" ;;
+      Android*) os="android" ;;
     esac
     ;;
 esac
 # 获取操作系统
 
-arch=$(uname -m)
-case "$arch" in
+case $(uname -m) in
   mipsel_24kc) arch="mipsle-hardfloat" ;;
   i386|x86) arch="386" ;;
   amd64|x86_64) arch="amd64" ;;
@@ -58,20 +58,16 @@ if [ "$arch" = "amd64" ]; then
   determine_level() {
     level=0
     if has_flags lm cmov cx8 fpu fxsr mmx syscall sse2; then
-      level=1
-      if has_flags cx16 lahf_lm popcnt sse4_1 sse4_2 ssse3; then
-        level=2
-        if has_flags avx avx2 bmi1 bmi2 f16c fma abm movbe xsave; then
-          level=3
-          if has_flags avx512f avx512bw avx512cd avx512dq avx512vl; then
-            level=4
-          fi
-        fi
-      fi
-    fi
+    level=1; fi
+    if has_flags cx16 lahf_lm popcnt sse4_1 sse4_2 ssse3; then
+    level=2; fi
+    if has_flags avx avx2 bmi1 bmi2 f16c fma abm movbe xsave; then
+    level=3; fi
+    if has_flags avx512f avx512bw avx512cd avx512dq avx512vl; then
+    level=4; fi
   }
   determine_level
-  case $level in
+  case "$level" in
     [34]) arch="amd64" ;;
     *) arch="amd64-compatible" ;;
   esac
