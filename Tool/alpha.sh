@@ -25,24 +25,27 @@ fi
 }
 
 update() {
-case $(uname -s) in
+us=$(uname -s)
+uo=$(uname -o)
+case $us in
   Darwin*) os="darwin" ;;
   MINGW*|MSYS*|CYGWIN*) os="windows" ;;
-  *) case $(uname -o) in
+  *) case $uo in
        Linux*) os="linux" ;;
        Android*) os="android" ;;
-       *) echo "不支持的操作系统 s=$(uname -s) o=$(uname -o)"; exit 1 ;;
+       *) echo "不支持的操作系统 s=$us o=$uo"; exit 1 ;;
     esac ;;
 esac
 # 获取操作系统
 
-case $(uname -m) in
+um=$(uname -m)
+case $um in
   mipsel_24kc) arch="mipsle-hardfloat" ;;
   i386|x86) arch="386" ;;
   amd64|x86_64) arch="amd64" ;;
   arm64|aarch64|armv8) arch="arm64" ;;
   armv7|armv7l) arch="armv7" ;;
-  *) echo "不支持的架构 m=$(uname -m)"; exit 1 ;;
+  *) echo "不支持的架构 m=$um"; exit 1 ;;
 esac
 
 if [ "$arch" = "amd64" ]; then
