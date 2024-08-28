@@ -2,8 +2,8 @@
 # LOVE FROM ATRI
 
 dir=$(cd $(dirname $0); pwd)
-api="https://api.github.com/repos/wzfdgh/ClashRepo/releases/latest"
-version=$(curl -sS "$api" | awk -F'-| ' '/body/ {print $5}')
+api=$(curl -sS "https://api.github.com/repos/wzfdgh/ClashRepo/releases/latest")
+version=$(echo "$api" | awk -F'-| ' '/body/ {print $5}')
 # 获取脚本路径及最新版本
 
 tobackup() {
@@ -83,8 +83,8 @@ fi
 gh="https://raw.githubusercontent.com/wzfdgh/ClashRepo/release/clash.meta-$os-$arch"
 gp="https://mirror.ghproxy.com/raw.githubusercontent.com/wzfdgh/ClashRepo/release/clash.meta-$os-$arch"
 js="https://cdn.jsdelivr.net/gh/wzfdgh/ClashRepo@release/clash.meta-$os-$arch"
-size=$(curl -sS $api | grep -4 "/clash.meta-$os-$arch\"" | awk -F': |,' '/size/ {print $2}')
-loc=$(curl -sS https://1.0.0.1/cdn-cgi/trace | awk -F'=' '/loc/ {print $2}')
+size=$(echo "$api" | grep -4 "/clash.meta-$os-$arch\"" | awk -F': |,' '/size/ {print $2}')
+loc=$(curl -sS "https://1.0.0.1/cdn-cgi/trace" | awk -F'=' '/loc/ {print $2}')
 
 if [ "$loc" = "CN" ]; then
   url="$gp"
@@ -93,7 +93,7 @@ else
 fi
 #url="$js"
 echo "OS=$os Arch=$arch Version=$version Szie=$size"
-# 显示系统与架构,核心版本,仓库文件大小
+# 显示系统与架构,核心版本及文件大小
 
 if command -v wget > /dev/null 2>&1; then
   wget -nv -O /tmp/clash "$url"
@@ -101,7 +101,11 @@ else
   curl -sSLo /tmp/clash --retry 10 "$url"
 fi
 
-filesize=$(stat -c %s /tmp/clash)
+if [ "$os" = "darwin" ]; then
+  filesize=$(stat -f %z /tmp/clash)
+else
+  filesize=$(stat -c %s /tmp/clash)
+fi
 
 if [ "$size" = "$filesize" ]; then
   chmod 755 /tmp/clash
@@ -125,7 +129,7 @@ if [ "$size" = "$filesize" ]; then
   fi
 # 到这里的部分,删掉
 else
-  echo "更新失败了喵,核心文件大小校验失败 filesize=$filesize"
+  echo "更新失败了喵,核心文件大小校验不成功或无法下载 filesize=$filesize"
   torestore
   exit 1
 fi
