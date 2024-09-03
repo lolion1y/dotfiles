@@ -122,19 +122,13 @@ if [ -f /etc/apt/sources.list.d/pve-enterprise.list ];then
 fi
 }
 
-apt() {
+extrapkg() {
 echo "补充软件包"
 apt install ntfs-3g libgl1 libegl1 -y
-apt install apcupsd
 }
 
-nupst() {
-echo "配置 Network UPS Tool"
-apt install nut nut-cgi -y
-}
-
-ct() {
-echo "更改 CT 镜像源"
+cts() {
+echo "更改 WebUI CT 下载源"
 if [ $(grep "https://mirrors.bfsu.edu.cn/proxmox" $apm | wc -l) -eq 0 ];then
   sed -i 's|http://download.proxmox.com|https://mirrors.bfsu.edu.cn/proxmox|g' $apm
   systemctl restart pvedaemon
@@ -329,6 +323,3 @@ else
   echo "无需配置"
 fi
 }
-
-web
-ct
