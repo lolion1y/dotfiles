@@ -81,7 +81,7 @@ fi
 # 如需指定架构请取消注释,填上你需要的架构,并把下面的试运行删去
 
 gh="https://raw.githubusercontent.com/wzfdgh/ci4core/release/clash.meta-$os-$arch"
-gp="https://mirror.ghproxy.com/raw.githubusercontent.com/wzfdgh/ci4core/release/clash.meta-$os-$arch"
+gp="https://ghp.ci/raw.githubusercontent.com/wzfdgh/ci4core/release/clash.meta-$os-$arch"
 js="https://cdn.jsdelivr.net/gh/wzfdgh/ci4core@release/clash.meta-$os-$arch"
 size=$(echo "$api" | grep -4 "/clash.meta-$os-$arch\"" | awk -F': |,' '/size/ {print $2}')
 loc=$(curl -sS "https://1.0.0.1/cdn-cgi/trace" | awk -F'=' '/loc/ {print $2}')
