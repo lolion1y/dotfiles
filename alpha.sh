@@ -3,7 +3,7 @@
 
 dir=$(cd $(dirname $0); pwd)
 api=$(curl -sS "https://api.github.com/repos/wzfdgh/ci4core/releases/latest")
-version=$(echo "$api" | awk -F'-| ' '/body/ {print $5}')
+version=$(echo "$api" | awk -F'=| ' '/body/ {print $5}')
 # 获取脚本路径及最新版本
 
 tobackup() {
@@ -39,7 +39,7 @@ esac
 
 case $(uname -m) in
   "mipsel_24kc") arch="mipsle-hardfloat" ;;
-#  "mips"|"mips64") if [ $(printf 'I' | hexdump -o | awk '{ print substr($2, 6, 1); exit; }') -eq 1 ]; then arch="$(uname -m)le"; fi; arch=""$(arch)"_softfloat" ;;
+#  "mips"|"mips64") if [ $(printf 'I' | hexdump -o | awk '{print substr($2, 6, 1); exit}') -eq 1 ]; then arch="$(uname -m)le"; fi; arch=""$(arch)"_softfloat" ;;
   "i386"|"i486"|"i686"|"i786"|"x86") arch="386" ;;
   "amd64"|"x86_64"|"x64"|"x86-64") arch="amd64" ;;
   "armv5"|"armv5l") arch="armv5" ;;
@@ -50,7 +50,7 @@ case $(uname -m) in
 esac
 
 if [ "$arch" = "amd64" ]; then
-  flags=$(awk '/^flags/ {gsub(/flags.*:|^/," ");print  $0 ; exit}' /proc/cpuinfo)
+  flags=$(awk '/^flags/ {gsub(/flags.*:|^/," "); print $0; exit}' /proc/cpuinfo)
   has_flags() {
     for flag; do
       case "$flags" in
@@ -115,7 +115,7 @@ if [ "$size" = "$filesize" ]; then
 #  echo 更新完成了喵
 #  exit 0
 # 如果指定架构,把上面语句取消注释,并将这里
-  newver=$(/tmp/clash -v | awk -F'-| ' '/alpha/ {print $4}')
+  newver=$(/tmp/clash -v | awk -F' ' '{print $3; exit}')
   if [ "$newver" = "$version" ]; then
     tobackup
     mv /tmp/clash $dir/clash
