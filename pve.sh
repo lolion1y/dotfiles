@@ -124,7 +124,7 @@ fi
 
 extrapkg() {
 echo "补充软件包"
-apt install ntfs-3g libgl1 libegl1 -y
+apt install libgl1 libegl1 -y
 }
 
 cts() {
@@ -139,9 +139,9 @@ fi
 
 grub() {
 echo "更改grub"
-if [ $(grep 'GRUB_CMDLINE_LINUX_DEFAULT="quiet intel_iommu=on iommu=pt i915.enable_guc=3 i915.max_vfs=7 intel_pstate=passive cpufreq.default_governor=conservative"' /etc/default/grub | wc -l) -eq 0 ];then
+if [ $(grep 'GRUB_CMDLINE_LINUX_DEFAULT="quiet intel_iommu=on i915.enable_guc=3 i915.max_vfs=7"' /etc/default/grub | wc -l) -eq 0 ];then
   l=$(sed -n "/GRUB_CMDLINE_LINUX_DEFAULT/=" /etc/default/grub)
-  sed -i ''$l'c GRUB_CMDLINE_LINUX_DEFAULT="quiet intel_iommu=on iommu=pt i915.enable_guc=3 i915.max_vfs=7 intel_pstate=passive cpufreq.default_governor=conservative"' /etc/default/grub
+  sed -i ''$l'c GRUB_CMDLINE_LINUX_DEFAULT="quiet intel_iommu=on i915.enable_guc=3 i915.max_vfs=7"' /etc/default/grub
   # https://www.intel.cn/content/www/cn/zh/support/articles/000093216/graphics/processor-graphics.html
   # i915.enable_gvt=1
 else
@@ -158,7 +158,7 @@ dkms add .
 dkms install -m i915-sriov-dkms -v $(cat VERSION) --force
 grub
 update-grub
-echo "devices/pci0000:00/0000:00:02.0/sriov_numvfs = 3" > /etc/sysfs.conf
+echo "devices/pci0000:00/0000:00:02.0/sriov_numvfs = 2" > /etc/sysfs.conf
 #proxmox-boot-tool kernel pin $(uname -r)
 apt purge proxmox-headers-$(uname -r)
 }
@@ -296,7 +296,7 @@ cat << EOF
 [web]
     bind to = 0.0.0.0=dashboard|registry|badges|management|streaming|netdata.conf^SSL=force
     ssl key = /etc/netdata/ssl/
-    ssl certificate = /etc/netdata/ssl
+    ssl certificate = /etc/netdata/ssl/
 EOF
 }
 
