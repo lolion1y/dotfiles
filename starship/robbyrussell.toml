@@ -1,0 +1,32 @@
+format = '$status$directory$git_branch$git_status'
+add_newline = false
+
+[git_branch]
+format = '[git:\([$branch](bold red)\)](bold blue) '
+
+[git_status]
+format = '[$all_status]($style) '
+style = 'yellow'
+conflicted = '✗'
+ahead = ''
+behind = ''
+diverged = ''
+up_to_date = ''
+untracked = '✗'
+stashed = ''
+modified = '✗'
+staged = '✗'
+renamed = '✗'
+deleted = '✗'
+typechanged = '✗'
+
+[status]
+disabled = false
+symbol = '➜'
+success_symbol = '[➜](bold green)'
+not_executable_symbol = '➜'
+not_found_symbol = '➜'
+sigint_symbol = '➜'
+style = 'bold red'
+format = '[$symbol]($style)  '
+map_symbol = true
