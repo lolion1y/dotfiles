@@ -2,23 +2,10 @@ format = '$status$directory$git_branch$git_status'
 add_newline = false
 
 [git_branch]
-format = '[git:\([$branch](bold red)\)](bold blue) '
+format = '[(git:\([$branch](bold red)\) )](bold blue)'
 
 [git_status]
-format = '[$all_status]($style) '
-style = 'yellow'
-conflicted = '✗'
-ahead = ''
-behind = ''
-diverged = ''
-up_to_date = ''
-untracked = '✗'
-stashed = ''
-modified = '✗'
-staged = '✗'
-renamed = '✗'
-deleted = '✗'
-typechanged = '✗'
+format = '[($all_status )]($style)'
 
 [status]
 disabled = false
