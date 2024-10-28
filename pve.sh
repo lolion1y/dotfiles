@@ -7,15 +7,17 @@ apm="/usr/share/perl5/PVE/APLInfo.pm"
 rc="/etc/rc.local"
 
 # ivanhao/pvetools
-web() {
+web_sub() {
 echo "去除订阅提示"
-if [ $(grep "data.status.toLowerCase() != 'active'" $pjs | wc -l) -gt 0 ];then
-  sed -i "s/data.status.toLowerCase() != 'active'/false/g" $pjs
+if [ $(grep "data.status.toLowerCase() !== 'active'" $pjs | wc -l) -gt 0 ];then
+  sed -i "s/data.status.toLowerCase() !== 'active'/false/g" $pjs
 else
   echo "无需去除"
 fi
+}
 
-echo "Web管理页增加数据"
+web_data() {
+echo "Web管理页添加数据"
 as
 apt update && apt install linux-cpupower lm-sensors -y
 if [ $(grep "cpu_tdp" $pm | wc -l) -eq 0 ];then
@@ -74,7 +76,7 @@ EOF
   fi
   systemctl restart pveproxy
 else
-  echo "无需增加"
+  echo "无需添加"
 fi
 }
 
@@ -128,7 +130,7 @@ apt install libgl1 libegl1 -y
 }
 
 cts() {
-echo "更改 WebUI CT 下载源"
+echo "更改 Web CT 下载源"
 if [ $(grep "https://mirrors.bfsu.edu.cn/proxmox" $apm | wc -l) -eq 0 ];then
   sed -i 's|http://download.proxmox.com|https://mirrors.bfsu.edu.cn/proxmox|g' $apm
   systemctl restart pvedaemon
@@ -138,14 +140,14 @@ fi
 }
 
 grub() {
-echo "更改grub"
+echo "修改 grub"
 if [ $(grep 'GRUB_CMDLINE_LINUX_DEFAULT="quiet intel_iommu=on i915.enable_guc=3 i915.max_vfs=7"' /etc/default/grub | wc -l) -eq 0 ];then
   l=$(sed -n "/GRUB_CMDLINE_LINUX_DEFAULT/=" /etc/default/grub)
   sed -i ''$l'c GRUB_CMDLINE_LINUX_DEFAULT="quiet intel_iommu=on i915.enable_guc=3 i915.max_vfs=7"' /etc/default/grub
   # https://www.intel.cn/content/www/cn/zh/support/articles/000093216/graphics/processor-graphics.html
   # i915.enable_gvt=1
 else
-  echo "无需更改"
+  echo "无需修改"
 fi
 }
 
@@ -163,7 +165,7 @@ echo "devices/pci0000:00/0000:00:02.0/sriov_numvfs = 2" > /etc/sysfs.conf
 apt purge proxmox-headers-$(uname -r)
 }
 
-uvgpu(){
+uvgpu() {
 apt update && apt install proxmox-headers-$(uname -r) -y
 rm -rf /var/lib/dkms/i915-sriov-dkms* rm -rf /usr/src/i915-sriov-dkms* && rm -rf ~/i915-sriov-dkms
 cd ~
@@ -254,7 +256,7 @@ msg_ok "Finished"
 rclocal() {
 echo "启用 rc.local"
 if [ -e "$rc" ];then
-  echo "无需更改"
+  echo "已经启用"
 else
   cat << EOF > /etc/rc.local
 #!/bin/sh -e
@@ -282,7 +284,7 @@ lr() {
 echo "删除 local-lvm"
 lvremove pve/data
 lvextend -l +100%FREE -r pve/root
-echo "请在 web 删除 local-lvm 储存 并编辑 local 的内容"
+echo "请在 web 删除 local-lvm 储存 并编辑 local 存储内容"
 }
 
 netdata() {
@@ -323,3 +325,26 @@ else
   echo "无需配置"
 fi
 }
+
+show_help() {
+cat << EOF
+web_sub - 去除订阅提示
+web_data - Web管理页添加数据
+as - apt 源
+extrapkg - 补充软件包
+cts - 更改 Web CT 下载源
+grub - 修改 grub
+ivgpu - install vgpu
+uvgpu - update vgpu
+kernel - 清理多余内核
+rclocal - 启用 rc.local
+lr - 删除 local-lvm
+netdata - 安装 Netdata
+eth - 配置网卡 offload
+EOF
+}
+
+case "$1" in
+  -h|--help) show_help ;;
+  *) $* ;;
+esac
