@@ -14,6 +14,7 @@ success_symbol = '[➜](bold green)'
 not_executable_symbol = '➜'
 not_found_symbol = '➜'
 sigint_symbol = '➜'
+signal_symbol = '➜'
 style = 'bold red'
 format = '[$symbol]($style)  '
 map_symbol = true
