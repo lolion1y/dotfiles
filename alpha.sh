@@ -1,5 +1,6 @@
 #!/bin/sh
 # LOVE FROM ATRI
+# 1.0-20250526
 
 dir=$(cd $(dirname $0); pwd)
 api=$(curl -sS "https://api.github.com/repos/lolion1y/ci4core/releases/latest")
@@ -83,7 +84,7 @@ fi
 gh="https://raw.githubusercontent.com/lolion1y/ci4core/release/clash.meta-$os-$arch"
 gp="https://ghfast.top/raw.githubusercontent.com/lolion1y/ci4core/release/clash.meta-$os-$arch"
 js="https://cdn.jsdelivr.net/gh/lolion1y/ci4core@release/clash.meta-$os-$arch"
-size=$(echo "$api" | grep -4 "/clash.meta-$os-$arch\"" | awk -F': |,' '/size/ {print $2}')
+size=$(echo "$api" | grep -8 "/clash.meta-$os-$arch\"" | awk -F': |,' '/size/ {print $2}')
 loc=$(curl -sS "https://1.0.0.1/cdn-cgi/trace" | awk -F'=' '/loc/ {print $2}')
 
 if [ "$loc" = "CN" ]; then
