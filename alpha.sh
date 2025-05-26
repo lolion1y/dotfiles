@@ -92,7 +92,7 @@ else
   url="$gh"
 fi
 #url="$js"
-echo "OS=$os Arch=$arch Version=$version Szie=$size"
+echo "OS=$os Arch=$arch Version=$version Size=$size"
 # 显示系统与架构,核心版本及文件大小
 
 if command -v wget > /dev/null 2>&1; then
