@@ -1,10 +1,17 @@
 #!/bin/sh
 # LOVE FROM ATRI
-# 1.0-20250526
+# 1.0-250531
 
-dir=$(cd $(dirname $0); pwd)
-api=$(curl -sS "https://api.github.com/repos/lolion1y/ci4core/releases/latest")
-version=$(echo "$api" | awk -F'=| ' '/body/ {print $5}')
+owner="lolion1y"
+repo="ci4core"
+api=$(curl -sS "https://api.github.com/repos/$owner/$repo/releases/latest")
+jq=$(jq -V 2> /dev/null || echo "Not exits")
+
+if [ "$jq" = "Not exits" ]; then
+  version=$(echo "$api" | jq -r .body | jq -r .core)
+else
+  version=$(echo "$api" | awk -F'"|\\\' '/body/ {print $10}')
+fi
 # 获取脚本路径及最新版本
 
 tobackup() {
@@ -81,11 +88,17 @@ fi
 #arch=
 # 如需指定架构请取消注释,填上你需要的架构,并把下面的试运行删去
 
-gh="https://raw.githubusercontent.com/lolion1y/ci4core/release/clash.meta-$os-$arch"
-gp="https://ghfast.top/raw.githubusercontent.com/lolion1y/ci4core/release/clash.meta-$os-$arch"
-js="https://cdn.jsdelivr.net/gh/lolion1y/ci4core@release/clash.meta-$os-$arch"
-size=$(echo "$api" | grep -8 "/clash.meta-$os-$arch\"" | awk -F': |,' '/size/ {print $2}')
-loc=$(curl -sS "https://1.0.0.1/cdn-cgi/trace" | awk -F'=' '/loc/ {print $2}')
+gh="https://raw.githubusercontent.com/$owner/$repo/release/clash.meta-$os-$arch"
+gp="https://ghfast.top/raw.githubusercontent.com/$owner/$repo/release/clash.meta-$os-$arch"
+js="https://cdn.jsdelivr.net/gh/$owner/$repo@release/clash.meta-$os-$arch"
+
+if [ "$jq" = "Not exits" ]; then
+  size=$(echo "$api" | grep -8 "/clash.meta-$os-$arch\"" | awk -F': |,' '/size/ {print $2}')
+  loc=$(curl -sS "https://1.0.0.1/cdn-cgi/trace" | awk -F'=' '/loc/ {print $2}')
+else
+  size=$(echo "$api" | jq -r ".assets[] | select(.name == \"clash.meta-$os-$arch\").size")
+  loc=$(curl -sS "https://speed.cloudflare.com/meta" | jq -r '.country')
+fi
 
 if [ "$loc" = "CN" ]; then
   url="$gp"
@@ -93,10 +106,11 @@ else
   url="$gh"
 fi
 #url="$js"
-echo "OS=$os Arch=$arch Version=$version Size=$size"
+
+echo "OS=\033[33m$os\033[0m Arch=\033[33m$arch\033[0m Version=\033[33m$version\033[0m Size=\033[33m$size\033[0m URL=\033[33m$url\033[0m jq=\033[33m$jq\033[0m"
 # 显示系统与架构,核心版本及文件大小
 
-if command -v wget > /dev/null 2>&1; then
+if wget -V > /dev/null 2>&1; then
   wget -nv -O /tmp/clash "$url"
 else
   curl -sSLo /tmp/clash --retry 10 "$url"
@@ -136,6 +150,7 @@ else
 fi
 }
 
+dir=$(cd $(dirname $0); pwd)
 if [ -f $dir/.clash-meta-version ] && [ $(cat $dir/.clash-meta-version) = "$version" ]; then
   echo "没有更新喵,还是等等吧"
   exit 0
