@@ -1,6 +1,6 @@
 #!/bin/sh
 # LOVE FROM ATRI
-# 1.0-250531
+# 1.1-250614
 
 owner="lolion1y"
 repo="ci4core"
@@ -107,7 +107,7 @@ else
 fi
 #url="$js"
 
-echo "OS=\033[33m$os\033[0m Arch=\033[33m$arch\033[0m jq=\033[33m$jq\033[0m\nVersion=\033[33m$version\033[0m Size=\033[33m$size\033[0m URL=\033[33m$url\033[0m"
+echo "OS=\033[33m$os\033[0m Arch=\033[33m$arch\033[0m Version=\033[33m$version\033[0m Size=\033[33m$size\033[0m jq=\033[33m$jq\033[0m\nURL=\033[33m$url\033[0m"
 # 显示系统与架构,核心版本及文件大小
 
 if wget -V > /dev/null 2>&1; then
