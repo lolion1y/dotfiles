@@ -5,16 +5,16 @@
 owner="lolion1y"
 repo="ci4core"
 api=$(curl -sS "https://api.github.com/repos/$owner/$repo/releases/latest")
-jq=$(jq -V 2> /dev/null || echo "Not exits")
+jq=$(jq -V 2> /dev/null || echo "Not found")
 
-if [ "$jq" = "Not exits" ]; then
+if [ "$jq" = "Not found" ]; then
   version=$(echo "$api" | jq -r .body | jq -r .core)
 else
   version=$(echo "$api" | awk -F'"|\\\' '/body/ {print $10}')
 fi
 # 获取脚本路径及最新版本
 
-tobackup() {
+backup() {
 if [ -f $dir/clash ]; then
   mv $dir/clash /tmp/clash.bak
   echo "已备份旧核心喵"
@@ -23,7 +23,7 @@ else
 fi
 }
 
-torestore() {
+restore() {
 if [ -f /tmp/clash.bak ]; then
   mv /tmp/clash.bak $dir/clash
   echo "核心备份已还原喵"
@@ -107,7 +107,7 @@ else
 fi
 #url="$js"
 
-echo "OS=\033[33m$os\033[0m Arch=\033[33m$arch\033[0m Version=\033[33m$version\033[0m Size=\033[33m$size\033[0m URL=\033[33m$url\033[0m jq=\033[33m$jq\033[0m"
+echo "OS=\033[33m$os\033[0m Arch=\033[33m$arch\033[0m jq=\033[33m$jq\033[0m\nVersion=\033[33m$version\033[0m Size=\033[33m$size\033[0m URL=\033[33m$url\033[0m"
 # 显示系统与架构,核心版本及文件大小
 
 if wget -V > /dev/null 2>&1; then
@@ -124,7 +124,7 @@ fi
 
 if [ "$size" = "$filesize" ]; then
   chmod 755 /tmp/clash
-#  tobackup
+#  backup
 #  mv /tmp/clash $dir/clash
 #  echo -n "$version" > $dir/.clash-meta-version
 #  echo 更新完成了喵
@@ -132,20 +132,20 @@ if [ "$size" = "$filesize" ]; then
 # 如果指定架构,把上面语句取消注释,并将这里
   newver=$(/tmp/clash -v | awk -F' ' '{print $3; exit}')
   if [ "$newver" = "$version" ]; then
-    tobackup
+    backup
     mv /tmp/clash $dir/clash
     echo -n "$version" > $dir/.clash-meta-version
     echo "更新完成了喵"
     exit 0
   else
     echo "更新失败了喵,核心版本不匹配或无法运行 newver=$newver"
-    torestore
+    restore
     exit 1
   fi
 # 到这里的部分,删掉
 else
   echo "更新失败了喵,核心文件大小校验不成功或无法下载 filesize=$filesize"
-  torestore
+  restore
   exit 1
 fi
 }
