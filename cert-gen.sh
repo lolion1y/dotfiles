@@ -1,4 +1,4 @@
-#! /bin/bash
+#!/bin/bash
 # https://www.mingfer.cn/2020/06/13/altern-name
 # https://foreverzmyer.hashnode.dev/https-ecc
 # Please remove the line containing -subj before using
@@ -133,6 +133,7 @@ gen_inter_ca() {
     -config ./ca.openssl.cnf \
     -in ./intermediate/intermediate.ca.csr.pem \
     -out ./intermediate/intermediate.ca.cert.pem \
+    -notext \
     -md sha256 \
     -days 70000 \
     -extensions v3_intermediate_ca
@@ -145,8 +146,8 @@ ca_chain() {
 
 gen_cert() {
   echo "INFO: 生成 server 证书"
-  read -p "请输入证书文件名：" certname
-  read -p "请输入服务器IP（eg. IP:127.0.0.1,IP:198.18.0.1,DNS:example.org）：" server
+  read -ep "请输入证书文件名：" certname
+  read -ep "请输入服务器IP（eg. IP:127.0.0.1,IP:198.18.0.1,DNS:example.org）：" server
   mkdir -p "$certname"
   openssl ecparam -genkey -name prime256v1 -out ./"$certname"/"$certname".key.pem
   openssl req -new \
@@ -165,6 +166,11 @@ gen_cert() {
     -CAcreateserial
   echo "INFO: 合并证书链"
   cat ./intermediate/intermediate.ca.cert.pem >> ./"$certname"/"$certname".cert.pem
+}
+
+cleanup() {
+  echo "清理无用文件"
+  rm ./*/*.csr.pem ./*.openssl.cnf > /dev/null 2>&1
 }
 
 while (($# >= 1)); do

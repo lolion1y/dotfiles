@@ -82,38 +82,25 @@ fi
 
 as() {
 echo "sources.list"
-if [ $(grep "https://mirrors.bfsu.edu.cn/debian/" /etc/apt/sources.list | wc -l) -eq 0 ];then
-  cat << EOF > /etc/apt/sources.list
-deb https://mirrors.bfsu.edu.cn/debian/ bookworm main contrib non-free non-free-firmware
-# deb-src https://mirrors.bfsu.edu.cn/debian/ bookworm main contrib non-free non-free-firmware
-deb https://mirrors.bfsu.edu.cn/debian/ bookworm-updates main contrib non-free non-free-firmware
-# deb-src https://mirrors.bfsu.edu.cn/debian/ bookworm-updates main contrib non-free non-free-firmware
-deb https://mirrors.bfsu.edu.cn/debian/ bookworm-backports main contrib non-free non-free-firmware
-# deb-src https://mirrors.bfsu.edu.cn/debian/ bookworm-backports main contrib non-free non-free-firmware
-deb https://mirrors.bfsu.edu.cn/debian-security bookworm-security main contrib non-free non-free-firmware
-# deb-src https://mirrors.bfsu.edu.cn/debian-security bookworm-security main contrib non-free non-free-firmware
-EOF
-  sed -i "$d" /etc/apt/sources.list
+if [ $(grep "https://mirrors.ustc.edu.cn" /etc/apt/sources.list | wc -l) -eq 0 ];then
+  sed -i 's|^deb http://ftp.debian.org|deb https://mirrors.ustc.edu.cn|g' /etc/apt/sources.list
+  sed -i 's|^deb http://security.debian.org|deb https://mirrors.ustc.edu.cn/debian-security|g' /etc/apt/sources.list
 else
   echo "无需更改"
 fi
 
 echo "ceph.list"
-if [ $(grep "https://mirrors.ustc.edu.cn/proxmox/debian/ceph-quincy" /etc/apt/sources.list.d/ceph.list | wc -l) -eq 0 ];then
-  cat << EOF > /etc/apt/sources.list.d/ceph.list
-deb https://mirrors.ustc.edu.cn/proxmox/debian/ceph-quincy bookworm no-subscription
-EOF
-  sed -i "$d" /etc/apt/sources.list.d/ceph.list
+if [ $(grep "https://mirrors.ustc.edu.cn/proxmox/debian/ceph" /etc/apt/sources.list.d/ceph.list | wc -l) -eq 0 ];then
+  CEPH_CODENAME=`ceph -v | grep ceph | awk '{print $(NF-1)}'`
+  source /etc/os-release
+  echo "deb https://mirrors.ustc.edu.cn/proxmox/debian/ceph-$CEPH_CODENAME $VERSION_CODENAME no-subscription" > /etc/apt/sources.list.d/ceph.list
 else
   echo "无需更改"
 fi
 
 echo "pve-no-subscription.list"
-if [ $(grep "https://mirrors.bfsu.edu.cn/proxmox/debian/pve" /etc/apt/sources.list.d/pve-no-subscription.list | wc -l) -eq 0 ];then
-  cat << EOF > /etc/apt/sources.list.d/pve-no-subscription.list
-deb https://mirrors.bfsu.edu.cn/proxmox/debian/pve bookworm pve-no-subscription
-EOF
-  sed -i "$d" /etc/apt/sources.list.d/pve-no-subscription.list
+if [ $(grep "https://mirrors.ustc.edu.cn/proxmox/debian/pve" /etc/apt/sources.list.d/pve-no-subscription.list | wc -l) -eq 0 ];then
+  echo "deb https://mirrors.ustc.edu.cn/proxmox/debian/pve bookworm pve-no-subscription" > /etc/apt/sources.list.d/pve-no-subscription.list
 else
   echo "无需更改"
 fi
@@ -131,8 +118,8 @@ apt install libgl1 libegl1 -y
 
 cts() {
 echo "更改 Web CT 下载源"
-if [ $(grep "https://mirrors.bfsu.edu.cn/proxmox" $apm | wc -l) -eq 0 ];then
-  sed -i 's|http://download.proxmox.com|https://mirrors.bfsu.edu.cn/proxmox|g' $apm
+if [ $(grep "https://mirrors.ustc.edu.cn/proxmox" $apm | wc -l) -eq 0 ];then
+  sed -i 's|http://download.proxmox.com|https://mirrors.ustc.edu.cn/proxmox|g' $apm
   systemctl restart pvedaemon
 else
   echo "无需更改"
