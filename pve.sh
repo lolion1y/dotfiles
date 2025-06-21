@@ -344,7 +344,10 @@ eth - 配置网卡 offload
 EOF
 }
 
-case "$1" in
-  -h|--help) show_help ;;
-  *) $* ;;
-esac
+while (($# >= 1)); do
+  case "$1" in
+    -h|--help) show_help ;;
+    *) $* ;;
+  esac
+  shift 1
+done
