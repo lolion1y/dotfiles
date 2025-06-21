@@ -146,8 +146,8 @@ ca_chain() {
 gen_cert() {
   echo "INFO: 生成 server 证书"
   read -p "请输入证书文件名：" certname
-  mkdir -p "$certname"
   read -p "请输入服务器IP（eg. IP:127.0.0.1,IP:198.18.0.1,DNS:example.org）：" server
+  mkdir -p "$certname"
   openssl ecparam -genkey -name prime256v1 -out ./"$certname"/"$certname".key.pem
   openssl req -new \
     -config ./interca.openssl.cnf \
