@@ -149,6 +149,7 @@ gen_cert() {
   read -ep "请输入证书文件名：" certname
   read -ep "请输入服务器IP（eg. IP:127.0.0.1,IP:198.18.0.1,DNS:example.org）：" server
   mkdir -p "$certname"
+  inter_ca_cnf
   openssl ecparam -genkey -name prime256v1 -out ./"$certname"/"$certname".key.pem
   openssl req -new \
     -config ./interca.openssl.cnf \
