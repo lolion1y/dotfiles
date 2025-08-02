@@ -1,6 +1,6 @@
 #!/bin/sh
 # LOVE FROM ATRI
-# 1.1-250614
+# 1.2-250802
 
 owner="lolion1y"
 repo="ci4core"
@@ -80,8 +80,9 @@ if [ "$arch" = "amd64" ]; then
   }
   determine_level
   case "$level" in
-    [34]) arch="amd64" ;;
-    *) arch="amd64-compatible" ;;
+    [34]) arch="amd64-v3" ;;
+    2) arch="amd64-v2" ;;
+    *) arch="amd64-v1" ;;
   esac
 fi
 # 获取架构
