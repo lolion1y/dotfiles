@@ -5,13 +5,8 @@
 owner="lolion1y"
 repo="ci4core"
 api=$(curl -sS "https://api.github.com/repos/$owner/$repo/releases/latest")
+version=$(echo "$api" | awk -F'=| ' '/body/ {print $5}')
 jq=$(jq -V 2> /dev/null || echo "Not found")
-
-if [ "$jq" = "Not found" ]; then
-  version=$(echo "$api" | jq -r .body | jq -r .core)
-else
-  version=$(echo "$api" | awk -F'"|\\\' '/body/ {print $10}')
-fi
 # 获取脚本路径及最新版本
 
 backup() {
@@ -93,14 +88,13 @@ gh="https://raw.githubusercontent.com/$owner/$repo/release/clash.meta-$os-$arch"
 gp="https://ghfast.top/raw.githubusercontent.com/$owner/$repo/release/clash.meta-$os-$arch"
 js="https://cdn.jsdelivr.net/gh/$owner/$repo@release/clash.meta-$os-$arch"
 
-if [ "$jq" = "Not exits" ]; then
+if [ "$jq" = "Not found" ]; then
   size=$(echo "$api" | grep -8 "/clash.meta-$os-$arch\"" | awk -F': |,' '/size/ {print $2}')
-  loc=$(curl -sS "https://1.0.0.1/cdn-cgi/trace" | awk -F'=' '/loc/ {print $2}')
 else
   size=$(echo "$api" | jq -r ".assets[] | select(.name == \"clash.meta-$os-$arch\").size")
-  loc=$(curl -sS "https://speed.cloudflare.com/meta" | jq -r '.country')
 fi
 
+loc=$(curl -sS "https://speed.cloudflare.com/cdn-cgi/trace" | awk -F'=' '/loc/ {print $2}')
 if [ "$loc" = "CN" ]; then
   url="$gp"
 else
@@ -111,17 +105,9 @@ fi
 echo "OS=\033[33m$os\033[0m Arch=\033[33m$arch\033[0m Version=\033[33m$version\033[0m Size=\033[33m$size\033[0m jq=\033[33m$jq\033[0m\nURL=\033[33m$url\033[0m"
 # 显示系统与架构,核心版本及文件大小
 
-if wget -V > /dev/null 2>&1; then
-  wget -nv -O "/tmp/clash-$version" "$url"
-else
-  curl -sSLo "/tmp/clash-$version" --retry 10 "$url"
-fi
+curl -LRo "/tmp/clash-$version" --progress-bar --retry 10 "$url"
 
-if [ "$os" = "darwin" ]; then
-  localsize=$(stat -f %z "/tmp/clash-$version")
-else
-  localsize=$(stat -c %s "/tmp/clash-$version")
-fi
+localsize=$(ls -l "/tmp/clash-$version" | awk '{print $5}')
 
 if [ "$size" = "$localsize" ]; then
   chmod 755 "/tmp/clash-$version"
