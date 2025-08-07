@@ -1,6 +1,6 @@
 #!/bin/sh
 # LOVE FROM ATRI
-# 1.2-250802
+# 1.3-250807
 
 owner="lolion1y"
 repo="ci4core"
