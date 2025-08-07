@@ -112,40 +112,40 @@ echo "OS=\033[33m$os\033[0m Arch=\033[33m$arch\033[0m Version=\033[33m$version\0
 # 显示系统与架构,核心版本及文件大小
 
 if wget -V > /dev/null 2>&1; then
-  wget -nv -O /tmp/clash "$url"
+  wget -nv -O "/tmp/clash-$version" "$url"
 else
-  curl -sSLo /tmp/clash --retry 10 "$url"
+  curl -sSLo "/tmp/clash-$version" --retry 10 "$url"
 fi
 
 if [ "$os" = "darwin" ]; then
-  filesize=$(stat -f %z /tmp/clash)
+  localsize=$(stat -f %z "/tmp/clash-$version")
 else
-  filesize=$(stat -c %s /tmp/clash)
+  localsize=$(stat -c %s "/tmp/clash-$version")
 fi
 
-if [ "$size" = "$filesize" ]; then
-  chmod 755 /tmp/clash
+if [ "$size" = "$localsize" ]; then
+  chmod 755 "/tmp/clash-$version"
 #  backup
-#  mv /tmp/clash $dir/clash
+#  mv "/tmp/clash-$version" $dir/clash
 #  echo -n "$version" > $dir/.clash-meta-version
 #  echo 更新完成了喵
 #  exit 0
 # 如果指定架构,把上面语句取消注释,并将这里
-  newver=$(/tmp/clash -v | awk -F' ' '{print $3; exit}')
-  if [ "$newver" = "$version" ]; then
+  localver=$("/tmp/clash-$version" -v | awk -F' ' '{print $3; exit}')
+  if [ "$localver" = "$version" ]; then
     backup
-    mv /tmp/clash $dir/clash
+    mv "/tmp/clash-$version" $dir/clash
     echo -n "$version" > $dir/.clash-meta-version
     echo "更新完成了喵"
     exit 0
   else
-    echo "更新失败了喵,核心版本不匹配或无法运行 newver=$newver"
+    echo "更新失败了喵,核心版本不匹配或无法运行 localver=$localver"
     restore
     exit 1
   fi
 # 到这里的部分,删掉
 else
-  echo "更新失败了喵,核心文件大小校验不成功或无法下载 filesize=$filesize"
+  echo "更新失败了喵,核心文件大小校验不成功或无法下载 localsize=$localsize"
   restore
   exit 1
 fi
