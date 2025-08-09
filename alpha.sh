@@ -1,11 +1,11 @@
 #!/bin/sh
 # LOVE FROM ATRI
-# 1.3-250807
+# 1.3-250809
 
 owner="lolion1y"
 repo="ci4core"
 api=$(curl -sS "https://api.github.com/repos/$owner/$repo/releases/latest")
-version=$(echo "$api" | awk -F'=| ' '/body/ {print $5}')
+version=$(echo "$api" | awk -F'"| ' '/^  "name"/ {print $7}')
 jq=$(jq -V 2> /dev/null || echo "Not found")
 # 获取脚本路径及最新版本
 
