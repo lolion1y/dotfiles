@@ -1,17 +1,17 @@
 #!/bin/sh
 # LOVE FROM ATRI
-# 1.3-250809
+# 1.3-251115
 
 owner="lolion1y"
 repo="ci4core"
-api=$(curl -sS "https://api.github.com/repos/$owner/$repo/releases/latest")
-version=$(echo "$api" | awk -F'"| ' '/^  "name"/ {print $7}')
-jq=$(jq -V 2> /dev/null || echo "Not found")
+api="$(curl -sS "https://api.github.com/repos/${owner}/${repo}/releases/latest")"
+version="$(echo -E "${api}" | awk -F'"| ' '/^  "name"/ {print $7}')"
+jq="$(jq -V 2> /dev/null || echo "Not found")"
 # 获取脚本路径及最新版本
 
 backup() {
-if [ -f $dir/clash ]; then
-  mv $dir/clash /tmp/clash.bak
+if [ -f ${dir}/clash ]; then
+  mv ${dir}/clash /tmp/clash.bak
   echo "已备份旧核心喵"
 else
   echo "当前路径下未找到旧核心喵"
@@ -20,7 +20,7 @@ fi
 
 restore() {
 if [ -f /tmp/clash.bak ]; then
-  mv /tmp/clash.bak $dir/clash
+  mv /tmp/clash.bak ${dir}/clash
   echo "核心备份已还原喵"
 else
   echo "未找到备份核心喵"
@@ -28,11 +28,11 @@ fi
 }
 
 update() {
-case $(uname -s) in
+case "$(uname -s)" in
   Darwin*) os="darwin" ;;
   FreeBSD*) os="freebsd" ;;
   MINGW*|MSYS*|CYGWIN*) os="windows" ;;
-  Linux*) case $(uname -o) in
+  Linux*) case "$(uname -o)" in
             Android*) os="android" ;;
             *) os="linux" ;;
           esac ;;
@@ -40,7 +40,7 @@ case $(uname -s) in
 esac
 # 获取操作系统
 
-case $(uname -m) in
+case "$(uname -m)" in
   "mipsel_24kc") arch="mipsle-hardfloat" ;;
 #  "mips"|"mips64") if [ $(printf 'I' | hexdump -o | awk '{print substr($2, 6, 1); exit}') -eq 1 ]; then arch="$(uname -m)le"; fi; arch=""$(arch)"_softfloat" ;;
   "i386"|"i486"|"i686"|"i786"|"x86") arch="386" ;;
@@ -52,12 +52,12 @@ case $(uname -m) in
   *) echo "不支持的架构 $(uname -a)"; exit 1 ;;
 esac
 
-if [ "$arch" = "amd64" ]; then
-  flags=$(awk '/^flags/ {gsub(/flags.*:|^/," "); print $0; exit}' /proc/cpuinfo)
+if [ "${arch}" = "amd64" ]; then
+  flags="$(awk '/^flags/ {gsub(/flags.*:|^/," "); print $0; exit}' /proc/cpuinfo)"
   has_flags() {
     for flag; do
-      case "$flags" in
-        *" $flag "*) : ;;
+      case "${flags}" in
+        *" ${flag} "*) : ;;
         *) return 1 ;;
       esac
     done
@@ -74,7 +74,7 @@ if [ "$arch" = "amd64" ]; then
     level=4; fi
   }
   determine_level
-  case "$level" in
+  case "${level}" in
     [34]) arch="amd64-v3" ;;
     2) arch="amd64-v2" ;;
     *) arch="amd64-v1" ;;
@@ -84,61 +84,61 @@ fi
 #arch=
 # 如需指定架构请取消注释,填上你需要的架构,并把下面的试运行删去
 
-gh="https://raw.githubusercontent.com/$owner/$repo/release/clash.meta-$os-$arch"
-gp="https://ghfast.top/raw.githubusercontent.com/$owner/$repo/release/clash.meta-$os-$arch"
-js="https://cdn.jsdelivr.net/gh/$owner/$repo@release/clash.meta-$os-$arch"
+gh="https://raw.githubusercontent.com/${owner}/${repo}/release/clash.meta-${os}-${arch}"
+gp="https://ghfast.top/raw.githubusercontent.com/${owner}/${repo}/release/clash.meta-${os}-${arch}"
+js="https://cdn.jsdelivr.net/gh/${owner}/${repo}@release/clash.meta-${os}-${arch}"
 
-if [ "$jq" = "Not found" ]; then
-  size=$(echo "$api" | grep -8 "/clash.meta-$os-$arch\"" | awk -F': |,' '/size/ {print $2}')
+if [ "${jq}" = "Not found" ]; then
+  size="$(echo -E "${api}" | grep -8 "/clash.meta-${os}-${arch}\"" | awk -F': |,' '/size/ {print $2}')"
 else
-  size=$(echo "$api" | jq -r ".assets[] | select(.name == \"clash.meta-$os-$arch\").size")
+  size="$(echo -E "${api}" | jq -r ".assets[] | select(.name == \"clash.meta-${os}-${arch}\").size")"
 fi
 
-loc=$(curl -sS "https://speed.cloudflare.com/cdn-cgi/trace" | awk -F'=' '/loc/ {print $2}')
-if [ "$loc" = "CN" ]; then
-  url="$gp"
+loc="$(curl -sS "https://speed.cloudflare.com/cdn-cgi/trace" | awk -F'=' '/loc/ {print $2}')"
+if [ "${loc}" = "CN" ]; then
+  url="${gp}"
 else
-  url="$gh"
+  url="${gh}"
 fi
-#url="$js"
+#url="${js}"
 
-echo "OS=\033[33m$os\033[0m Arch=\033[33m$arch\033[0m Version=\033[33m$version\033[0m Size=\033[33m$size\033[0m jq=\033[33m$jq\033[0m\nURL=\033[33m$url\033[0m"
+echo "OS=\033[33m${os}\033[0m Arch=\033[33m${arch}\033[0m Version=\033[33m${version}\033[0m Size=\033[33m${size}\033[0m jq=\033[33m${jq}\033[0m\nURL=\033[33m${url}\033[0m"
 # 显示系统与架构,核心版本及文件大小
 
-curl -LRo "/tmp/clash-$version" --progress-bar --retry 10 "$url"
+curl -LRo "/tmp/clash-${version}" --progress-bar --retry 10 "${url}"
 
-localsize=$(ls -l "/tmp/clash-$version" | awk '{print $5}')
+localsize=$(ls -l "/tmp/clash-${version}" | awk '{print $5}')
 
-if [ "$size" = "$localsize" ]; then
-  chmod 755 "/tmp/clash-$version"
+if [ "${size}" = "${localsize}" ]; then
+  chmod 755 "/tmp/clash-${version}"
 #  backup
-#  mv "/tmp/clash-$version" $dir/clash
-#  echo -n "$version" > $dir/.clash-meta-version
+#  mv "/tmp/clash-${version}" ${dir}/clash
+#  echo -n "${version}" > ${dir}/.clash-meta-version
 #  echo 更新完成了喵
 #  exit 0
 # 如果指定架构,把上面语句取消注释,并将这里
-  localver=$("/tmp/clash-$version" -v | awk -F' ' '{print $3; exit}')
-  if [ "$localver" = "$version" ]; then
+  localver=$("/tmp/clash-${version}" -v | awk -F' ' '{print $3; exit}')
+  if [ "${localver}" = "${version}" ]; then
     backup
-    mv "/tmp/clash-$version" $dir/clash
-    echo -n "$version" > $dir/.clash-meta-version
+    mv "/tmp/clash-${version}" ${dir}/clash
+    echo -n "${version}" > ${dir}/.clash-meta-version
     echo "更新完成了喵"
     exit 0
   else
-    echo "更新失败了喵,核心版本不匹配或无法运行 localver=$localver"
+    echo "更新失败了喵,核心版本不匹配或无法运行 localver=${localver}"
     restore
     exit 1
   fi
 # 到这里的部分,删掉
 else
-  echo "更新失败了喵,核心文件大小校验不成功或无法下载 localsize=$localsize"
+  echo "更新失败了喵,核心文件大小校验不成功或无法下载 localsize=${localsize}"
   restore
   exit 1
 fi
 }
 
-dir=$(cd $(dirname $0); pwd)
-if [ -f $dir/.clash-meta-version ] && [ $(cat $dir/.clash-meta-version) = "$version" ]; then
+dir="$(cd $(dirname $0); pwd)"
+if [ -f ${dir}/.clash-meta-version ] && [ $(cat ${dir}/.clash-meta-version) = "${version}" ]; then
   echo "没有更新喵,还是等等吧"
   exit 0
 else
