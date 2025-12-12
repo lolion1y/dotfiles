@@ -1,12 +1,11 @@
 #!/bin/sh
 # LOVE FROM ATRI
-# 1.3-251115
+# 1.3.1-251212
 
 owner="lolion1y"
 repo="ci4core"
 api="$(curl -sS "https://api.github.com/repos/${owner}/${repo}/releases/latest")"
 version="$(echo -E "${api}" | awk -F'"| ' '/^  "name"/ {print $7}')"
-jq="$(jq -V 2> /dev/null || echo "Not found")"
 # 获取脚本路径及最新版本
 
 backup() {
@@ -83,16 +82,8 @@ fi
 # 获取架构
 #arch=
 # 如需指定架构请取消注释,填上你需要的架构,并把下面的试运行删去
-
-gh="https://raw.githubusercontent.com/${owner}/${repo}/release/clash.meta-${os}-${arch}"
-gp="https://ghfast.top/raw.githubusercontent.com/${owner}/${repo}/release/clash.meta-${os}-${arch}"
-js="https://cdn.jsdelivr.net/gh/${owner}/${repo}@release/clash.meta-${os}-${arch}"
-
-if [ "${jq}" = "Not found" ]; then
-  size="$(echo -E "${api}" | grep -8 "/clash.meta-${os}-${arch}\"" | awk -F': |,' '/size/ {print $2}')"
-else
-  size="$(echo -E "${api}" | jq -r ".assets[] | select(.name == \"clash.meta-${os}-${arch}\").size")"
-fi
+gh="https://github.com/${owner}/${repo}/releases/latest/download/clash.meta-${os}-${arch}"
+gp="https://ghfast.top/https://github.com/${owner}/${repo}/releases/latest/download/clash.meta-${os}-${arch}"
 
 loc="$(curl -sS "https://speed.cloudflare.com/cdn-cgi/trace" | awk -F'=' '/loc/ {print $2}')"
 if [ "${loc}" = "CN" ]; then
@@ -100,12 +91,11 @@ if [ "${loc}" = "CN" ]; then
 else
   url="${gh}"
 fi
-#url="${js}"
 
-echo "OS=\033[33m${os}\033[0m Arch=\033[33m${arch}\033[0m Version=\033[33m${version}\033[0m Size=\033[33m${size}\033[0m jq=\033[33m${jq}\033[0m\nURL=\033[33m${url}\033[0m"
+echo "OS=\033[33m${os}\033[0m Arch=\033[33m${arch}\033[0m Version=\033[33m${version}\033[0m Size=\033[33m${size}\033[0m\nURL=\033[33m${url}\033[0m"
 # 显示系统与架构,核心版本及文件大小
 
-curl -LRo "/tmp/clash-${version}" --progress-bar --retry 10 "${url}"
+curl -#Lo "/tmp/clash-${version}" --retry 8 "${url}"
 
 localsize=$(ls -l "/tmp/clash-${version}" | awk '{print $5}')
 
