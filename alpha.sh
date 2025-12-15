@@ -92,9 +92,9 @@ else
   url="${gh}"
 fi
 
-size=$(echo "$api" | grep -8 "/clash.meta-$os-$arch\"" | awk -F': |,' '/size/ {print $2}')
+size=$(echo -E "${api}" | grep -8 "/clash.meta-$os-$arch\"" | awk -F': |,' '/size/ {print $2}')
 
-echo "OS=\033[33m${os}\033[0m Arch=\033[33m${arch}\033[0m Version=\033[33m${version}\033[0m Size=\033[33m${size}\033[0m\nURL=\033[33m${url}\033[0m"
+echo -e "OS=\033[33m${os}\033[0m Arch=\033[33m${arch}\033[0m Version=\033[33m${version}\033[0m Size=\033[33m${size}\033[0m\nURL=\033[33m${url}\033[0m"
 # 显示系统与架构,核心版本及文件大小
 
 curl -#Lo "/tmp/clash-${version}" --retry 8 "${url}"
