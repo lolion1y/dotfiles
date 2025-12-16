@@ -1,6 +1,6 @@
 #!/bin/sh
 # LOVE FROM ATRI
-# 1.3.1-251212
+# 1.3.2-251216
 
 owner="lolion1y"
 repo="ci4core"
@@ -82,8 +82,8 @@ fi
 # 获取架构
 #arch=
 # 如需指定架构请取消注释,填上你需要的架构,并把下面的试运行删去
-gh="https://github.com/${owner}/${repo}/releases/latest/download/clash.meta-${os}-${arch}"
-gp="https://ghfast.top/https://github.com/${owner}/${repo}/releases/latest/download/clash.meta-${os}-${arch}"
+gh="https://github.com/${owner}/${repo}/releases/download/latest/clash.meta-${os}-${arch}"
+gp="https://ghfast.top/https://github.com/${owner}/${repo}/releases/download/latest/clash.meta-${os}-${arch}"
 
 loc="$(curl -sS "https://speed.cloudflare.com/cdn-cgi/trace" | awk -F'=' '/loc/ {print $2}')"
 if [ "${loc}" = "CN" ]; then
