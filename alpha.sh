@@ -1,6 +1,6 @@
 #!/bin/sh
 # LOVE FROM ATRI
-# 1.3.2-251216
+# 1.4.0-260214
 
 owner="lolion1y"
 repo="ci4core"
@@ -9,8 +9,8 @@ version="$(echo -E "${api}" | awk -F'"| ' '/^  "name"/ {print $7}')"
 # 获取脚本路径及最新版本
 
 backup() {
-if [ -f ${dir}/clash ]; then
-  mv ${dir}/clash /tmp/clash.bak
+if [ -f $(pwd)/clash ]; then
+  mv $(pwd)/clash /tmp/clash.bak
   echo "已备份旧核心喵"
 else
   echo "当前路径下未找到旧核心喵"
@@ -19,7 +19,7 @@ fi
 
 restore() {
 if [ -f /tmp/clash.bak ]; then
-  mv /tmp/clash.bak ${dir}/clash
+  mv /tmp/clash.bak $(pwd)/clash
   echo "核心备份已还原喵"
 else
   echo "未找到备份核心喵"
@@ -99,38 +99,37 @@ echo -e "OS=\033[33m${os}\033[0m Arch=\033[33m${arch}\033[0m Version=\033[33m${v
 
 curl -#Lo "/tmp/clash-${version}" --retry 8 "${url}"
 
-localsize=$(ls -l "/tmp/clash-${version}" | awk '{print $5}')
+locsize=$(ls -l "/tmp/clash-${version}" | awk '{print $5}')
 
-if [ "${size}" = "${localsize}" ]; then
+if [ "${size}" = "${locsize}" ]; then
   chmod 755 "/tmp/clash-${version}"
 #  backup
-#  mv "/tmp/clash-${version}" ${dir}/clash
-#  echo -n "${version}" > ${dir}/.clash-meta-version
+#  mv "/tmp/clash-${version}" $(pwd)/clash
+#  echo -n "${version}" > $(pwd)/.clash-meta-version
 #  echo 更新完成了喵
 #  exit 0
 # 如果指定架构,把上面语句取消注释,并将这里
-  localver=$("/tmp/clash-${version}" -v | awk -F' ' '{print $3; exit}')
-  if [ "${localver}" = "${version}" ]; then
+  locver=$("/tmp/clash-${version}" -v | awk -F' ' '{print $3; exit}')
+  if [ "${locver}" = "${version}" ]; then
     backup
-    mv "/tmp/clash-${version}" ${dir}/clash
-    echo -n "${version}" > ${dir}/.clash-meta-version
+    mv "/tmp/clash-${version}" $(pwd)/clash
+    echo -n "${version}" > $(pwd)/.clash-meta-version
     echo "更新完成了喵"
     exit 0
   else
-    echo "更新失败了喵,核心版本不匹配或无法运行 localver=${localver}"
+    echo "更新失败了喵,核心版本不匹配或无法运行 locver=${locver}"
     restore
     exit 1
   fi
 # 到这里的部分,删掉
 else
-  echo "更新失败了喵,核心文件大小校验不成功或无法下载 localsize=${localsize}"
+  echo "更新失败了喵,核心文件大小校验不成功或无法下载 locsize=${locsize}"
   restore
   exit 1
 fi
 }
 
-dir="$(cd $(dirname $0); pwd)"
-if [ -f ${dir}/.clash-meta-version ] && [ $(cat ${dir}/.clash-meta-version) = "${version}" ]; then
+if [ -f $(pwd)/.clash-meta-version ] && [ $(cat $(pwd)/.clash-meta-version) = "${version}" ]; then
   echo "没有更新喵,还是等等吧"
   exit 0
 else
