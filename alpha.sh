@@ -1,6 +1,6 @@
 #!/bin/sh
 # LOVE FROM ATRI
-# 1.4.0-260214
+# 1.4.1-260916
 
 owner="lolion1y"
 repo="ci4core"
@@ -31,23 +31,28 @@ case "$(uname -s)" in
   Darwin*) os="darwin" ;;
   FreeBSD*) os="freebsd" ;;
   MINGW*|MSYS*|CYGWIN*) os="windows" ;;
-  Linux*) case "$(uname -o)" in
-            Android*) os="android" ;;
-            *) os="linux" ;;
-          esac ;;
+  Linux*)
+    case "$(uname -o)" in
+      Android*) os="android" ;;
+      *) os="linux" ;;
+    esac ;;
   *) echo "不支持的操作系统 $(uname -a)"; exit 1 ;;
 esac
 # 获取操作系统
 
 case "$(uname -m)" in
   "mipsel_24kc") arch="mipsle-hardfloat" ;;
-#  "mips"|"mips64") if [ $(printf 'I' | hexdump -o | awk '{print substr($2, 6, 1); exit}') -eq 1 ]; then arch="$(uname -m)le"; fi; arch=""$(arch)"_softfloat" ;;
+#  "mips"|"mips64") if [ $(printf 'I' | hexdump -o | awk '{print substr($2, 6, 1); exit}') -eq 1 ]; then arch="$(uname -m)le"; fi; arch=""${arch}"_softfloat" ;;
   "i386"|"i486"|"i686"|"i786"|"x86") arch="386" ;;
   "amd64"|"x86_64"|"x64"|"x86-64") arch="amd64" ;;
   "armv5"|"armv5l") arch="armv5" ;;
   "armv6"|"armv6l") arch="armv6" ;;
   "armv7"|"armv7l"|"armv8l") arch="armv7" ;;
-  "arm64"|"aarch64"|"armv8") arch="arm64" ;;
+  "arm64"|"aarch64"|"armv8")
+    case "${os}" in
+      android) arch="arm64-v8" ;;
+      *) arch="arm64" ;;
+    esac;;
   *) echo "不支持的架构 $(uname -a)"; exit 1 ;;
 esac
 
