@@ -1,6 +1,6 @@
 #!/bin/sh
 # LOVE FROM ATRI
-# 1.4.1-260916
+# 1.4.1-260918
 
 owner="lolion1y"
 repo="ci4core"
@@ -31,11 +31,7 @@ case "$(uname -s)" in
   Darwin*) os="darwin" ;;
   FreeBSD*) os="freebsd" ;;
   MINGW*|MSYS*|CYGWIN*) os="windows" ;;
-  Linux*)
-    case "$(uname -o)" in
-      Android*) os="android" ;;
-      *) os="linux" ;;
-    esac ;;
+  Linux*) case "$(uname -o)" in [aA]ndroid) os="android" ;; *) os="linux" ;; esac ;;
   *) echo "不支持的操作系统 $(uname -a)"; exit 1 ;;
 esac
 # 获取操作系统
@@ -48,11 +44,7 @@ case "$(uname -m)" in
   "armv5"|"armv5l") arch="armv5" ;;
   "armv6"|"armv6l") arch="armv6" ;;
   "armv7"|"armv7l"|"armv8l") arch="armv7" ;;
-  "arm64"|"aarch64"|"armv8")
-    case "${os}" in
-      android) arch="arm64-v8" ;;
-      *) arch="arm64" ;;
-    esac;;
+  "arm64"|"aarch64"|"armv8") case "${os}" in android) arch="arm64-v8";; *) arch="arm64";; esac ;;
   *) echo "不支持的架构 $(uname -a)"; exit 1 ;;
 esac
 
@@ -97,14 +89,14 @@ else
   url="${gh}"
 fi
 
-size=$(echo -E "${api}" | grep -8 "/clash.meta-$os-$arch\"" | awk -F': |,' '/size/ {print $2}')
+size="$(echo -E "${api}" | grep -8 "/clash.meta-$os-$arch\"" | awk -F': |,' '/size/ {print $2}')"
 
 echo -e "OS=\033[33m${os}\033[0m Arch=\033[33m${arch}\033[0m Version=\033[33m${version}\033[0m Size=\033[33m${size}\033[0m\nURL=\033[33m${url}\033[0m"
 # 显示系统与架构,核心版本及文件大小
 
 curl -#Lo "/tmp/clash-${version}" --retry 8 "${url}"
 
-locsize=$(ls -l "/tmp/clash-${version}" | awk '{print $5}')
+locsize="$(ls -l "/tmp/clash-${version}" | awk '{print $5}')"
 
 if [ "${size}" = "${locsize}" ]; then
   chmod 755 "/tmp/clash-${version}"
@@ -117,8 +109,8 @@ if [ "${size}" = "${locsize}" ]; then
   locver=$("/tmp/clash-${version}" -v | awk -F' ' '{print $3; exit}')
   if [ "${locver}" = "${version}" ]; then
     backup
-    mv "/tmp/clash-${version}" $(pwd)/clash
-    echo -n "${version}" > $(pwd)/.clash-meta-version
+    mv "/tmp/clash-${version}" "$(pwd)/clash"
+    echo -n "${version}" > "$(pwd)/.clash-meta-version"
     echo "更新完成了喵"
     exit 0
   else
@@ -134,7 +126,7 @@ else
 fi
 }
 
-if [ -f $(pwd)/.clash-meta-version ] && [ $(cat $(pwd)/.clash-meta-version) = "${version}" ]; then
+if [ -f "$(pwd)/.clash-meta-version" ] && [ "$(cat $(pwd)/.clash-meta-version)" = "${version}" ]; then
   echo "没有更新喵,还是等等吧"
   exit 0
 else
